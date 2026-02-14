@@ -48,3 +48,4 @@ For the User to Choose:
     5.2 JSON
     5.3 DataFrame
     5.4 Parquet
+    5.5 Excel File
