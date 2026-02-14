@@ -1,7 +1,7 @@
 """
 clean.py
 
-Module for cleaning tabular datasets.
+Module for cleaning the dataset.
 
 Utility functions provided for the following: 
 - handling missing values

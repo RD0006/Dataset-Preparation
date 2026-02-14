@@ -1,5 +1,5 @@
 """
 input.py
 
-Module for input and input valdiation of tabular datasets.
+Module for input and input valdiation of the tabular dataset.
 """

@@ -1,7 +1,7 @@
 """
 extend.py
 
-Module for extending dataset.
+Module for extending the dataset.
 
 Utility functions provided for the following:
 - adding rows

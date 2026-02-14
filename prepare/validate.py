@@ -1,7 +1,7 @@
 """
 validate.py
 
-Module for validating the columns of a dataset and optionally fixing issues in-place. 
+Module for validating the columns of the dataset and optionally fixing issues in-place. 
 
 Column checks and in-place fixes provided for the following issues:
 - negative values in a column
