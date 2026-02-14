@@ -90,3 +90,42 @@ class Dataset:
         """
 
         return self.dataset.head(n)
+    
+    def tail(self, n = 5):
+        """
+        Return last n rows
+        """
+
+        return self.dataset.tail(n)
+    
+    @property
+    def num_of_rows(self):
+        """
+        Return number of rows
+        """
+
+        return self.dataset.shape[0]
+    
+    @property
+    def num_of_columns(self):
+        """
+        Return number of columns
+        """
+
+        return self.dataset.shape[1]
+    
+    @property
+    def shape(self):
+        """
+        Return shape of the dataset
+        """
+
+        return self.dataset.shape
+
+    @property
+    def columns(self):
+        """
+        Return all columns
+        """
+
+        return list(self.dataset.columns)
