@@ -10,10 +10,6 @@ Utility modules provided are as follows:
 - extend.py: module for extending the dataset
 - split.py: module for splitting the dataset
 - export.py: module for exporting the final dataset in the required format
-
-Author: Radhika Diwan
-
-Version: 1.0
 """
 
 __all__ = [
