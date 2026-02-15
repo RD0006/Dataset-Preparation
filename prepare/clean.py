@@ -371,19 +371,7 @@ class Cleaner:
                     
         for i in cols:
 
-            if technique == "label":
-                dataset[i] = pd.Categorical(dataset[i]).codes
-                dataset[i] = dataset[i].replace(-1, np.nan)
-
-            elif technique == "onehot":
-                nan_mask = dataset[i].isna()
-                temp = pd.get_dummies(dataset[i], prefix = i, drop_first = True)
-                dataset.drop(columns = [i], inplace = True)
-                for col in temp.columns:
-                    dataset[col] = temp[col]
-                    dataset.loc[nan_mask, col] = np.nan
-
-            elif technique == "lower":
+            if technique == "lower":
                 dataset[i] = dataset[i].apply(value_to_lower_case)
 
             elif technique == "upper":
