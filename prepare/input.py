@@ -9,20 +9,14 @@ import json
 
 class Dataset:
 
-    def __init__(self):
+    def __init__(self, input_dataset):
         """
         Initialize Dataset object.
-        """
-        self.dataset = None
-    
-    def load(self, input_dataset):
-        """
-        Load Dataset
 
         Parameters:
         - input_dataset: str file path or pandas.DataFrame
         """
-        
+
         if isinstance(input_dataset, str):
             
             input_dataset = input_dataset.lower()
@@ -82,8 +76,6 @@ class Dataset:
             # empty dataset
 
             raise ValueError("Empty dataset loaded!")
-        
-        return self.dataset
 
     def __repr__(self):
         """
@@ -133,7 +125,7 @@ class Dataset:
     @property
     def columns(self):
         """
-        Return all columns
+        Return list of all column names
         """
 
         return list(self.dataset.columns)
