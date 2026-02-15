@@ -255,12 +255,20 @@ class Validator:
 
     def get_log(self):
         """
-        Get log containing the list of all issues and total number as well as percentage of rows affected
+        Get log containing the list of all issues
+        """
+        
+        self.log[("Complete Dataset", "Total Number of Invalid Rows")] = len(self.indices)
+        return self.log
+    
+    def get_invalid_rows(self):
+        """
+        Get number and percentage of invalid rows
         """
 
-        self.log[("Complete Dataset", "Total Number of Invalid Rows")] = len(self.indices)
-        self.log[("Complete Dataset", "Total Percentage of Invalid Rows")] = round(len(self.indices) / self.dataset.num_of_rows * 100, 2)
-        return self.log
+        if self.inplace == True:
+            return (0, 0)
+        return len(self.indices), round(len(self.indices) / self.dataset.num_of_rows * 100, 2)
     
     def fix_issues(self):
         """
