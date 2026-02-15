@@ -227,7 +227,7 @@ class Validator:
         """
 
         # checks
-        if not isinstance(column_type, str) or column_type not in ["int", "float", "complex", "str", "bool", "bytes"]:
+        if not isinstance(column_type, str) or column_type not in ["int", "float", "complex", "str", "bool"]:
             raise TypeError("Type not recognized!")
         
         # type hash map
@@ -243,9 +243,7 @@ class Validator:
             elif column_type == "str":
                 return isinstance(val, str)
             elif column_type == "bool":
-                return isinstance(val, bool)
-            elif column_type == "bytes":
-                return isinstance(val, bytes)            
+                return isinstance(val, bool)            
 
         dataset = self.dataset.dataset
         col = self.__get_column(column)
