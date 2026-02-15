@@ -13,6 +13,7 @@ Column checks and in-place fixes provided for the following issues:
 """
 
 import math
+import numpy as np
 import pandas as pd
 from input import Dataset
 
@@ -69,10 +70,10 @@ class Validator:
         col = self.__get_column(column)
         
         # checks
-        if not pd.api.types.is_numeric_dtype(dataset[col]):
-            raise TypeError("Column contains non-numeric values!")
         if dataset[col].isnull().any():
             raise ValueError("Column contains null values!")
+        if not pd.api.types.is_numeric_dtype(dataset[col]) or isinstance(dataset[col].dtype, complex) or np.issubdtype(dataset[col].dtype, np.complexfloating):
+            raise TypeError("Column must contain int and/or float values!")
 
         # operation
         rows = dataset[dataset[col] < 0].index
@@ -94,6 +95,7 @@ class Validator:
 
         Parameters:
         - column: str or int
+        - all_columns: boolean value
         """
 
         dataset = self.dataset.dataset
@@ -159,6 +161,7 @@ class Validator:
         - class_names: list of valid class names
         """
         
+        # checks
         if not isinstance(class_names, list):
             raise TypeError("Class names should be in a list!")
 
@@ -195,10 +198,10 @@ class Validator:
         # checks
         if not (isinstance(start, (int, float)) and isinstance(end, (int, float))):
             raise TypeError("Range should be numeric!")
-        if not pd.api.types.is_numeric_dtype(dataset[col]):
-            raise TypeError("Column contains non-numeric values!")
         if dataset[col].isnull().any():
             raise ValueError("Column contains null values!")
+        if not pd.api.types.is_numeric_dtype(dataset[col]) or isinstance(dataset[col].dtype, complex) or np.issubdtype(dataset[col].dtype, np.complexfloating):
+            raise TypeError("Column must contain int and/or float values!")
 
         # operation
         rows = dataset[(dataset[col] < start) | (dataset[col] > end)].index
@@ -214,33 +217,41 @@ class Validator:
 
         return self
 
-    def validate_type(self, column, col_type):
+    def validate_type(self, column, column_type, ignore_nulls = True):
         """
         Count and optionally delete rows with values not having valid type
 
         Parameter:
         - column: str or int
-        - col_type: str
+        - column_type: str
         """
 
-        if not isinstance(col_type, str) or col_type not in ["int", "float", "complex", "str", "bool", "bytes"]:
+        # checks
+        if not isinstance(column_type, str) or column_type not in ["int", "float", "complex", "str", "bool", "bytes"]:
             raise TypeError("Type not recognized!")
         
         # type hash map
-        type_hm = {
-            "int" : int,
-            "float" : float,
-            "complex" : complex,
-            "str" : str,
-            "bool" : bool,
-            "bytes" : bytes
-        }
+        def check_type(val):
+            if ignore_nulls == True and (val is None or (isinstance(val, float) and np.isnan(val))):
+                return True
+            if column_type == "int":
+                return isinstance(val, int) or np.issubdtype(type(val), np.integer)
+            elif column_type == "float":
+                return isinstance(val, float) or np.issubdtype(type(val), np.floating)
+            elif column_type == "complex":
+                return isinstance(val, complex) or np.issubdtype(type(val), np.complexfloating)
+            elif column_type == "str":
+                return isinstance(val, str)
+            elif column_type == "bool":
+                return isinstance(val, bool)
+            elif column_type == "bytes":
+                return isinstance(val, bytes)            
 
         dataset = self.dataset.dataset
         col = self.__get_column(column)
 
         # operation
-        rows = dataset[dataset[col].map(type) != type_hm[col_type]].index
+        rows = [index for index, value in dataset[col].items() if not check_type(value)]
 
         # update log
         self.log[(column, "Values with Incorrect Type")] = len(rows)
