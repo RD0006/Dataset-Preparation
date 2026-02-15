@@ -13,7 +13,7 @@ Input: existing dataset (check if dataset is tabular)
 
 For the User to Choose:
 
-1. Data Validation (should support in-place fixing as well)
+1. Data Validation (should support in-place deletion as well)
     1.1 No Negative Values in Column
     1.2 No Null Values in Column 
     1.3 No Duplicate Values in Column
@@ -23,13 +23,12 @@ For the User to Choose:
 
 2. Clean Data
     2.1 Handle Missing Values
-    2.2 Handle Noisy Data
-    2.3 Remove Duplicates
-    2.4 Check Column Types
-    2.5 Normalization
-    2.6 Standardization
-    2.7 Smoothing
-    2.8 Remove Outliers
+    2.2 Remove Duplicate Rows
+    2.3 Remove Outliers
+    2.4 Fix Categorical Values
+    2.5 Drop Columns
+    2.6 Normalization
+    2.7 Standardization
 
 3. Extend Dataset 
     3.1 Add rows
