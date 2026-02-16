@@ -15,7 +15,7 @@ Column checks and in-place fixes provided for the following issues:
 import math
 import numpy as np
 import pandas as pd
-from input import Dataset
+from .input import Dataset
 
 class Validator:
 
@@ -217,48 +217,80 @@ class Validator:
 
         return self
 
-    def validate_type(self, column, column_type, ignore_nulls = True):
+    def check_datatype(self, column):
         """
-        Count and optionally delete rows with values not having valid type
+        Get all datatypes present in the column
 
         Parameter:
         - column: str or int
         - column_type: str
         """
-
-        # checks
-        if not isinstance(column_type, str) or column_type not in ["int", "float", "complex", "str", "bool"]:
-            raise TypeError("Type not recognized!")
         
         # type hash map
         def check_type(val):
-            if ignore_nulls == True and (val is None or (isinstance(val, float) and np.isnan(val))):
-                return True
-            if column_type == "int":
-                return isinstance(val, int) or np.issubdtype(type(val), np.integer)
-            elif column_type == "float":
-                return isinstance(val, float) or np.issubdtype(type(val), np.floating)
-            elif column_type == "complex":
-                return isinstance(val, complex) or np.issubdtype(type(val), np.complexfloating)
-            elif column_type == "str":
-                return isinstance(val, str)
-            elif column_type == "bool":
-                return isinstance(val, bool)            
+            if pd.isna(val):
+                return "null"
+            if isinstance(val, bool):
+                return "boolean"
+            if isinstance(val, int) or np.issubdtype(type(val), np.integer):
+                return "integer"
+            elif isinstance(val, float) or np.issubdtype(type(val), np.floating):
+                return "float"
+            elif isinstance(val, complex) or np.issubdtype(type(val), np.complexfloating):
+                return "complex"
+            elif isinstance(val, str):
+                return "str"
+            else:
+                return type(val)
 
         dataset = self.dataset.dataset
         col = self.__get_column(column)
 
         # operation
-        rows = [index for index, value in dataset[col].items() if not check_type(value)]
+        types = set([check_type(value) for value in dataset[col]])
+
+        return sorted((types))
+
+    def convert_type(self, column, to_type):
+        """
+        Count and optionally delete rows with values not having valid type
+
+        Parameter:
+        - column: str or int
+        - to_type: str
+        """
+
+        if to_type not in ["int", "float", "str"]:
+            raise TypeError("Type conversion not possible!")
+        
+        # type hash map
+        dataset = self.dataset.dataset
+        col = self.__get_column(column)
+
+        # operation
+        cnt = 0
+        # operation
+        for i in range(self.dataset.num_of_rows):
+            try:
+                temp = dataset.loc[i, col]
+                if temp is None or (isinstance(temp, float) and np.isnan(temp)):
+                    continue
+
+                if to_type == "int":
+                    dataset.loc[i, col] = int(dataset.loc[i, col])
+                elif to_type == "float":
+                    dataset.loc[i, col] = float(dataset.loc[i, col])
+                elif to_type == "str":
+                    dataset.loc[i, col] = str(dataset.loc[i, col])
+
+                cnt += 1
+            except (ValueError, TypeError):
+                dataset.loc[i, col] = None
+            
+        cnt = dataset[col].notna().sum()
 
         # update log
-        self.log[(column, "Values with Incorrect Type")] = len(rows)
-
-        # drop rows if required
-        if self.inplace :
-            dataset.drop(index = rows, inplace = True)
-        else:
-            self.indices.update(rows)
+        self.log[(column, "Rows with Updated Type " + to_type)] = cnt
 
         return self
 
@@ -288,6 +320,9 @@ class Validator:
             return -1
         elif self.indices:
             self.dataset.dataset.drop(index = list(self.indices), inplace = True)
-            return len(self.indices)
+            cnt = len(self.indices)
+            self.log = {}
+            self.indices = set()
+            return cnt
         else:
             return 0
