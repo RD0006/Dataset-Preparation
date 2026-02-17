@@ -15,7 +15,7 @@ Utility functions provided for the following:
 
 import numpy as np
 import pandas as pd
-from input import Dataset
+from .input import Dataset
 
 class Cleaner:
 
@@ -446,6 +446,44 @@ class Cleaner:
 
         return self
     
+    def fix_column_type(self, column, expected_type, technique = None):
+        """
+        Validate column type, and drop or fix rows as per user's choice
+        """
+
+        if technique is not None and self.inplace == False:
+            raise ValueError(f"Cannot apply technique {technique} in validate_column_type as inplace is set to False!")
+        if technique not in ["drop", "fix"]:
+            raise ValueError(f"Technique {technique} cannot be recognized!")
+        
+        dataset = self.dataset.dataset
+        col = self.__get_column(column)
+
+        cnt = 0
+
+        for i in self.dataset.num_of_rows:
+
+            
+
+            """
+            try:
+                if pd.isna(dataset.loc(i, col)):
+                    cnt += 1
+                    continue
+                
+                if expected_type == "int":
+                    dataset[col].replace(dataset.loc(i, col), int(dataset.loc(i, col)))
+                elif expected_type == "float":
+                    dataset[col].replace(dataset.loc(i, col), float(dataset.loc(i, col)))
+                elif expected_type == "str":
+                    dataset[col].replace(dataset.loc(i, col), str(dataset.loc(i, col)))
+                else:
+                    dataset[col].replace(dataset.loc(i, col), bool(dataset.loc(i, col)))
+                cnt += 1
+            except:
+                pass
+            """
+
     def drop_column(self, column = None, all_columns = False):
         """
         Drop column
