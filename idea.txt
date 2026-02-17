@@ -19,7 +19,7 @@ For the User to Choose:
     1.3 No Duplicate Values in Column
     1.4 Class Names Validation of Column
     1.5 Range Validator of Column
-    1.6 Type Check of Column
+    1.6 Type Check of Column --- add in future
 
 2. Clean Data
     2.1 Handle Missing Values

@@ -9,7 +9,6 @@ Column checks and in-place fixes provided for the following issues:
 - duplicate values in a column
 - appropriate class names in a column
 - range validation of values in a column
-- type validation of values in a column
 """
 
 import math
@@ -32,8 +31,9 @@ class Validator:
             raise TypeError("Dataset object not received!")
         self.dataset = dataset
         self.inplace = inplace
-        self.log = {}
-        self.indices = set()
+        self.__initial_row_count = dataset.num_of_rows
+        self.__log = {}
+        self.__indices = set()
 
     def __get_column(self, column):
         """
@@ -79,51 +79,38 @@ class Validator:
         rows = dataset[dataset[col] < 0].index
 
         # update log
-        self.log[(column, "Negative Values")] = len(rows)
+        self.__log[(column, "Negative Values")] = len(rows)
 
         # drop rows if required
         if self.inplace:
             dataset.drop(index = rows, inplace = True)
         else:
-            self.indices.update(rows)
+            self.__indices.update(rows)
         
         return self
 
-    def null_values(self, column = -1, all_columns = False):
+    def null_values(self, column):
         """
         Count and optionally delete rows with null values
 
         Parameters:
         - column: str or int
-        - all_columns: boolean value
         """
 
         dataset = self.dataset.dataset
+        col = self.__get_column(column)
         
-        # if all columns are to be checked
-        if all_columns == True:
+        # operation
+        rows = dataset[dataset[col].isnull()].index
 
-            # operation
-            rows = dataset[dataset.isnull().any(axis = 1)].index
-
-            # update log
-            self.log[("Complete Dataset", "Null Values")] = len(rows)
-
-        # else
-        else:
-            col = self.__get_column(column)
-        
-            # operation
-            rows = dataset[dataset[col].isnull()].index
-
-            # update log
-            self.log[(column, "Null Values")] = len(rows)
+        # update log
+        self.__log[(column, "Null Values")] = len(rows)
 
         # drop rows if required
         if self.inplace :
             dataset.drop(index = rows, inplace = True)
         else:
-            self.indices.update(rows)
+            self.__indices.update(rows)
         
         return self
 
@@ -142,13 +129,13 @@ class Validator:
         rows = dataset[dataset.duplicated(subset = [col])].index
         
         # update log
-        self.log[(column, "Duplicate Values")] = len(rows)
+        self.__log[(column, "Duplicate Values")] = len(rows)
 
         # drop rows if required
         if self.inplace :
             dataset.drop(index = rows, inplace = True)
         else:
-            self.indices.update(rows)
+            self.__indices.update(rows)
         
         return self
 
@@ -172,13 +159,13 @@ class Validator:
         rows = dataset[dataset[col].isin(class_names)  == False].index
         
         # update log
-        self.log[(column, "Wrong Class Names")] = len(rows)
+        self.__log[(column, "Wrong Class Names")] = len(rows)
 
         # drop rows if required
         if self.inplace :
             dataset.drop(index = rows, inplace = True)
         else:
-            self.indices.update(rows)
+            self.__indices.update(rows)
 
         return self
 
@@ -207,84 +194,43 @@ class Validator:
         rows = dataset[(dataset[col] < start) | (dataset[col] > end)].index
 
         # update log
-        self.log[(column, "Values not in Range")] = len(rows)
+        self.__log[(column, "Values not in Range")] = len(rows)
 
         # drop rows if required
         if self.inplace :
             dataset.drop(index = rows, inplace = True)
         else:
-            self.indices.update(rows)
+            self.__indices.update(rows)
 
         return self
     
-    def validate_column_type(self, column, expected_type):
-        """
-        Count and optionally remove rows with incorrect datatype
-        """
-        
-        dataset = self.dataset.dataset
-        col = self.__get_column(column)
-
-        rows = []
-
-        # operation
-        for i in self.dataset.num_of_rows:
-            temp = dataset.loc[i, col]
-            
-            if temp is None or pd.isna(temp):
-                continue
-
-            if expected_type == "int" and not (isinstance(temp, (int, np.integer))):
-                rows.append(i)
-            elif expected_type == "float" and not (isinstance(temp, (float, np.floating, int, np.integer))):
-                rows.append(i)
-            elif expected_type == "complex" and not (isinstance(temp, (complex, np.complexfloating))):
-                rows.append(i)
-            elif expected_type == "bool" and not (isinstance(temp, (bool, np.bool_))):
-                rows.append(i)
-            elif expected_type == "str" and not (isinstance(temp, (str, np.string_))):
-                rows.append(i)
-        
-        # update log
-        self.log[(column, "Values with Incorrect Datatype")] = len(rows)
-
-        # drop rows if required
-        if self.inplace :
-            dataset.drop(index = rows, inplace = True)
-        else:
-            self.indices.update(rows)
-
-        return self
 
     def get_log(self):
         """
         Get log containing the list of all issues
         """
         
-        self.log[("Complete Dataset", "Total Number of Invalid Rows")] = len(self.indices)
-        return self.log
-    
-    def get_invalid_rows(self):
-        """
-        Get number and percentage of invalid rows
-        """
-
+        log = self.__log
         if self.inplace == True:
-            return (0, 0)
-        return len(self.indices), round(len(self.indices) / self.dataset.num_of_rows * 100, 2)
+            log[("Complete Dataset", "Total Number of Invalid Rows Updated")] = len(self.__indices)
+            log[("Complete Dataset", "Total Percentage of Invalid Rows Updated")] = len(self.__indices) / self.__initial_row_count * 100
+        else:
+            log[("Complete Dataset", "Total Number of Invalid Rows Found")] = len(self.__indices)
+            log[("Complete Dataset", "Total Percentage of Invalid Rows Found")] = len(self.__indices) / self.__initial_row_count * 100
+        return log
     
-    def fix_issues(self):
+    def drop_invalid_rows(self):
         """
         Fix all issues by dropping all invalid rows
         """
 
         if self.inplace == True:
             return -1
-        elif self.indices:
-            self.dataset.dataset.drop(index = list(self.indices), inplace = True)
-            cnt = len(self.indices)
-            self.log = {}
-            self.indices = set()
+        elif self.__indices:
+            self.dataset.dataset.drop(index = list(self.__indices), inplace = True)
+            cnt = len(self.__indices)
+            self.__log = {}
+            self.__indices = set()
             return cnt
         else:
             return 0
