@@ -216,81 +216,43 @@ class Validator:
             self.indices.update(rows)
 
         return self
-
-    def check_datatype(self, column):
+    
+    def validate_column_type(self, column, expected_type):
         """
-        Get all datatypes present in the column
-
-        Parameter:
-        - column: str or int
-        - column_type: str
+        Count and optionally remove rows with incorrect datatype
         """
         
-        # type hash map
-        def check_type(val):
-            if pd.isna(val):
-                return "null"
-            if isinstance(val, bool):
-                return "boolean"
-            if isinstance(val, int) or np.issubdtype(type(val), np.integer):
-                return "integer"
-            elif isinstance(val, float) or np.issubdtype(type(val), np.floating):
-                return "float"
-            elif isinstance(val, complex) or np.issubdtype(type(val), np.complexfloating):
-                return "complex"
-            elif isinstance(val, str):
-                return "str"
-            else:
-                return type(val)
-
         dataset = self.dataset.dataset
         col = self.__get_column(column)
 
-        # operation
-        types = set([check_type(value) for value in dataset[col]])
-
-        return sorted((types))
-
-    def convert_type(self, column, to_type):
-        """
-        Count and optionally delete rows with values not having valid type
-
-        Parameter:
-        - column: str or int
-        - to_type: str
-        """
-
-        if to_type not in ["int", "float", "str"]:
-            raise TypeError("Type conversion not possible!")
-        
-        # type hash map
-        dataset = self.dataset.dataset
-        col = self.__get_column(column)
+        rows = []
 
         # operation
-        cnt = 0
-        # operation
-        for i in range(self.dataset.num_of_rows):
-            try:
-                temp = dataset.loc[i, col]
-                if temp is None or (isinstance(temp, float) and np.isnan(temp)):
-                    continue
-
-                if to_type == "int":
-                    dataset.loc[i, col] = int(dataset.loc[i, col])
-                elif to_type == "float":
-                    dataset.loc[i, col] = float(dataset.loc[i, col])
-                elif to_type == "str":
-                    dataset.loc[i, col] = str(dataset.loc[i, col])
-
-                cnt += 1
-            except (ValueError, TypeError):
-                dataset.loc[i, col] = None
+        for i in self.dataset.num_of_rows:
+            temp = dataset.loc[i, col]
             
-        cnt = dataset[col].notna().sum()
+            if temp is None or pd.isna(temp):
+                continue
 
+            if expected_type == "int" and not (isinstance(temp, (int, np.integer))):
+                rows.append(i)
+            elif expected_type == "float" and not (isinstance(temp, (float, np.floating, int, np.integer))):
+                rows.append(i)
+            elif expected_type == "complex" and not (isinstance(temp, (complex, np.complexfloating))):
+                rows.append(i)
+            elif expected_type == "bool" and not (isinstance(temp, (bool, np.bool_))):
+                rows.append(i)
+            elif expected_type == "str" and not (isinstance(temp, (str, np.string_))):
+                rows.append(i)
+        
         # update log
-        self.log[(column, "Rows with Updated Type " + to_type)] = cnt
+        self.log[(column, "Values with Incorrect Datatype")] = len(rows)
+
+        # drop rows if required
+        if self.inplace :
+            dataset.drop(index = rows, inplace = True)
+        else:
+            self.indices.update(rows)
 
         return self
 
