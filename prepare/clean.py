@@ -30,7 +30,9 @@ class Cleaner:
         if not isinstance(dataset, Dataset):
             raise TypeError("Dataset object not received!")
         self.dataset = dataset
-        self.log = {}
+        self.__log = {}
+        self.__initial_row_count = self.dataset.num_of_rows
+        self.__initial_column_count = self.dataset.num_of_columns
 
     def __get_column(self, column):
         """
@@ -261,17 +263,17 @@ class Cleaner:
 
         for i in cols:
             
+            # boolean columns
+            if pd.api.types.is_bool_dtype(dataset[i]):
+                boolean_list.append(i)
+            
             # numeric columns
-            if pd.api.types.is_numeric_dtype(dataset[i]):
+            elif pd.api.types.is_numeric_dtype(dataset[i]):
                 numeric_list.append(i)
 
             # categorical columns
             elif pd.api.types.is_string_dtype(dataset[i]) or pd.api.types.is_object_dtype(dataset[i]):
                 categorical_list.append(i)
-            
-            # boolean columns
-            elif pd.api.types.is_bool_dtype(dataset[i]):
-                boolean_list.append(i)
             
             # type error
             else:
@@ -287,17 +289,13 @@ class Cleaner:
             cnt += self.__handle_missing_boolean_values(boolean_list, boolean)
 
         # update log
-        self.log["Null Values"] = cnt
+        self.__log["Null Values"] = cnt
 
         return self
 
-    def remove_duplicate_rows(self, column = None, all_columns = False):
+    def drop_duplicate_rows(self):
         """
-        Remove duplicate rows
-
-        Parameters:
-        - column: str, int, or list
-        - all_columns: bool
+        Drop duplicate rows
         """
 
         dataset = self.dataset.dataset
@@ -305,22 +303,13 @@ class Cleaner:
         # checks
         if dataset.empty:
             raise RuntimeError("Dataset is empty!")
-        if column is None and all_columns == False:
-            raise ValueError("No column selected!")
-
-        # operations for entire dataset
-        if column is None or all_columns == True:
-            cnt = dataset.duplicated().sum()
-            dataset.drop_duplicates(inplace = True)
-
-        # operations for selected columns
-        else:
-            cols = self.__get_column(column)
-            cnt = dataset.duplicated(subset = cols).sum()
-            dataset.drop_duplicates(subset = cols, inplace = True)
+        
+        # operation
+        cnt = dataset.duplicated().sum()
+        dataset.drop_duplicates(inplace = True)
         
         # update log
-        self.log["Duplicate Rows"] = cnt
+        self.__log["Duplicate Rows"] = cnt
 
         return self
 
@@ -355,6 +344,10 @@ class Cleaner:
 
         cnt = 0
 
+        indices = set()
+
+        dataset[cols] = dataset[cols].astype("float")
+
         for i in cols:
 
             # if technique is drop, remove all rows having any outliers detected by IQR method
@@ -365,7 +358,7 @@ class Cleaner:
                 lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
                 mask = (dataset[i] < lower) | (dataset[i] > upper)
                 cnt += mask.sum()
-                dataset.drop(dataset[mask].index, inplace = True)
+                indices.update(dataset[mask].index)
 
             # if technique is iqr, fix all outliers found using IQR method
             elif technique == "iqr":
@@ -393,8 +386,11 @@ class Cleaner:
             else:
                 raise ValueError("Technique not recognized!")
         
+        if technique == "drop":
+            dataset.drop(index = list(indices), inplace = True)
+        
         # update log
-        self.log["Outliers Handled"] = cnt
+        self.__log["Outlier Values Handled"] = cnt
 
         return self
 
@@ -423,67 +419,29 @@ class Cleaner:
             cols = self.__get_column(column)
 
         # get string columns
-        cols = [c for c in cols if pd.api.types.is_string_dtype(dataset[c])]
+        cols = [c for c in cols if pd.api.types.is_string_dtype(dataset[c]) or pd.api.types.is_object_dtype(dataset[c])]
         if not cols:
             raise ValueError("No categorical columns found!")
                     
         for i in cols:
 
-            # if technique is lower, converts all values in column to lowercase
+            # if technique is lower, converts all values in column to lowercase and strips whitespaces
             if technique == "lower":
-                dataset[i] = dataset[i].str.lower()
+                dataset.loc[ : , i] = dataset[i].str.strip().str.lower()
 
-            # if technique is upper, converts all values in column to uppercase
+            # if technique is upper, converts all values in column to uppercase and strips whitespaces
             elif technique == "upper":
-                dataset[i] = dataset[i].str.upper()
+                dataset.loc[ : , i] = dataset[i].str.strip().str.upper()
 
             # if type unrecognized
             else:
                 raise ValueError("Technique not recognized!")
             
         # update log
-        self.log["Categoricals Fixed"] = len(cols)
+        self.__log["Categoricals Fixed"] = len(cols)
 
         return self
     
-    def fix_column_type(self, column, expected_type, technique = None):
-        """
-        Validate column type, and drop or fix rows as per user's choice
-        """
-
-        if technique is not None and self.inplace == False:
-            raise ValueError(f"Cannot apply technique {technique} in validate_column_type as inplace is set to False!")
-        if technique not in ["drop", "fix"]:
-            raise ValueError(f"Technique {technique} cannot be recognized!")
-        
-        dataset = self.dataset.dataset
-        col = self.__get_column(column)
-
-        cnt = 0
-
-        for i in self.dataset.num_of_rows:
-
-            
-
-            """
-            try:
-                if pd.isna(dataset.loc(i, col)):
-                    cnt += 1
-                    continue
-                
-                if expected_type == "int":
-                    dataset[col].replace(dataset.loc(i, col), int(dataset.loc(i, col)))
-                elif expected_type == "float":
-                    dataset[col].replace(dataset.loc(i, col), float(dataset.loc(i, col)))
-                elif expected_type == "str":
-                    dataset[col].replace(dataset.loc(i, col), str(dataset.loc(i, col)))
-                else:
-                    dataset[col].replace(dataset.loc(i, col), bool(dataset.loc(i, col)))
-                cnt += 1
-            except:
-                pass
-            """
-
     def drop_column(self, column = None, all_columns = False):
         """
         Drop column
@@ -508,8 +466,8 @@ class Cleaner:
         # drop columns
         dataset.drop(cols, axis = 1, inplace = True)
 
-        # udpate log
-        self.log["Dropped Columns"] = len(cols)
+        # update log
+        self.__log["Dropped Columns"] = len(cols)
 
         return self
 
@@ -541,17 +499,23 @@ class Cleaner:
         if not cols:
             raise ValueError("No numeric columns for normalization!")
 
+        cnt = 0
+
+        dataset[cols] = dataset[cols].astype(float)
+
         for i in cols:
 
             # normalization
-            temp = (dataset[i].max() - dataset[i].min())
+            min_val = dataset[i].min()
+            temp = (dataset[i].max() - min_val)
             if temp != 0:
-                dataset[i] = (dataset[i] - dataset[i].min()) / temp
+                dataset.loc[ : , i] = (dataset[i] - min_val) / temp
+                cnt += 1
             else:
-                raise ArithmeticError(f"Column {i} cannot be normalized as max(column) - min(column) is zero")
+                continue
 
         # update log
-        self.log["Normalized Columns"] = len(cols)
+        self.__log["Normalized Columns"] = cnt
 
         return self
 
@@ -584,15 +548,37 @@ class Cleaner:
         if not cols:
             raise ValueError("No numeric columns for standardization!")
 
+        cnt = 0
+
+        dataset[cols] = dataset[cols].astype(float)
+
         for i in cols:
 
             # standardization
             if dataset[i].std() != 0:
-                dataset[i] = (dataset[i] - dataset[i].mean()) / dataset[i].std()
+                dataset.loc[ : , i] = (dataset[i] - dataset[i].mean()) / dataset[i].std()
+                cnt += 1
             else:
-                raise ArithmeticError(f"Column {i} has standard deviation 0!")
+                continue
             
         # update log
-        self.log["Standardized Columns"] = len(cols)
+        self.__log["Standardized Columns"] = cnt
 
         return self
+
+    def get_log_of_fixed_issues(self):
+        """
+        Get log containing the list of all issues that were fixed
+        """
+        
+        log = self.__log.copy()
+
+        log[("Complete Dataset", "Total Number of Rows Removed")] = self.__initial_row_count - self.dataset.num_of_rows
+        log[("Complete Dataset", "Total Number of Rows Remaining")] = self.dataset.num_of_rows
+        log[("Complete Dataset", "Percentage of Dataset Rows Remaining")] = self.dataset.num_of_rows / self.__initial_row_count * 100
+
+        log[("Complete Dataset", "Total Number of Columns Removed")] = self.__initial_column_count - self.dataset.num_of_columns
+        log[("Complete Dataset", "Total Number of Columns Remaining")] = self.dataset.num_of_columns
+        log[("Complete Dataset", "Percentage of Dataset Columns Remaining")] = self.dataset.num_of_columns / self.__initial_column_count * 100
+
+        return log
