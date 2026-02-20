@@ -259,7 +259,7 @@ class Extender:
         
     def get_log(self):
         """
-        Get log containing the list of all issues
+        Get log containing the details of rows added
         """
         
         log = self.__log
