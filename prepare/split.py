@@ -65,7 +65,7 @@ class Splitter:
             dataset = dataset.sample(frac = 1).reset_index(drop = True)
         
         # operation
-        n_train = int(train * num_of_rows)
+        n_train = round(train * num_of_rows)
         result["train"] = Dataset(dataset[ : n_train])
         result["test"] = Dataset(self.dataset.dataset[n_train : ])
 
@@ -111,8 +111,8 @@ class Splitter:
             dataset = dataset.sample(frac = 1).reset_index(drop = True)
         
         # operation
-        n_train = int(train * num_of_rows)
-        n_validate = int(validate * num_of_rows)
+        n_train = round(train * num_of_rows)
+        n_validate = round(validate * num_of_rows)
         result["train"] = Dataset(dataset[ : n_train])
         result["validate"] = Dataset(dataset[n_train : n_train + n_validate])
         result["test"] = Dataset(dataset[n_train + n_validate : ])
