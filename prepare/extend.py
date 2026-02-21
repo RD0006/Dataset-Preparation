@@ -87,7 +87,7 @@ class Extender:
         # update log
         self.__log["Number of Gaussian Rows Added"] = len(new_rows)
 
-        return self.dataset.dataset
+        return self
     
     def balance_classes(self, column, k = 5, random_state = 42):
         """
@@ -173,9 +173,9 @@ class Extender:
         # update log
         self.__log["Number of Rows Added for Balancing Classes"] = len(new_rows)
 
-        return self.dataset.dataset
+        return self
     
-    def add_duplicate_rows(self, n_rows = 20, random_state = 42):
+    def add_duplicate_rows(self, n_rows = 10, random_state = 42):
         """
         Add Duplicate Rows to Dataset
 
@@ -199,9 +199,9 @@ class Extender:
         # update log
         self.__log["Number of Duplicate Rows Added"] = n_rows
 
-        return self.dataset.dataset
+        return self
 
-    def add_noisy_rows(self, noise_level = 0.01, n_rows = 10, random_state = 42):
+    def add_noisy_rows(self, n_rows = 10, noise_level = 0.01, random_state = 42):
         """
         Add Noisy Rows to Dataset
 
@@ -255,7 +255,7 @@ class Extender:
         # update log
         self.__log["Number of Noisy Rows Added"] = len(new_rows)
 
-        return self.dataset.dataset
+        return self
         
     def get_log(self):
         """
