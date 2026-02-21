@@ -1,37 +1,37 @@
-from prepare.input import Dataset
-from prepare.validate import *
+from prepare import Dataset, Validator, Cleaner, Extender, Splitter, Exporter
 
 dataset = Dataset("kc_house_data.csv")
 
-# print(dataset)
+validator = (
+    Validator(dataset, inplace = False)
+    .negative_values("floors")
+    .null_values("floors")
+    .duplicate_values("id")
+    .validate_range("bathrooms", 1)
+)
 
-print("DATASET DETAILS")
-print(dataset.head())
-print(dataset.tail())
-print(dataset.num_of_rows)
-print(dataset.num_of_columns)
-print(dataset.shape)
-print(dataset.columns)
-print()
+cleaner = (
+    Cleaner(dataset)
+    .handle_missing_values(all_columns = True)
+    .handle_outliers(all_columns = True)
+    .fix_categoricals(all_columns = True)
+    .drop_column("id")
+    .drop_column("date")
+    .drop_duplicate_rows()
+    .normalize(all_columns = True)
+    .standardize(all_columns = True)
+)
 
-validator = Validator(dataset, inplace = False)
-validator.negative_values("floors").null_values("floors").duplicate_values("id").validate_range("bathrooms", 1)
+extender = (
+    Extender(dataset)
+    .add_gaussian_rows()
+    .add_duplicate_rows()
+    .add_noisy_rows()
+)
 
-print("LOGS")
-log = validator.get_log()
-for i in log:
-    print(i, log[i])
-validator.drop_invalid_rows()
-print()
+splitter = Splitter(dataset)
+result = splitter.train_test(0.8)
 
-print("DATASET DETAILS")
-print(dataset.num_of_rows)
-print(dataset.num_of_columns)
-print(dataset.shape)
-print(dataset.columns)
-print()
-
-print("LOG")
-log = validator.get_log()
-for i in log:
-    print(i, log[i])
+exporter = Exporter()
+exporter.export_to_csv(result["train"], "Training_Dataset.csv", overwrite = 0)
+exporter.export_to_csv(result["test"], "Testing_Dataset.csv", overwrite = 0)
