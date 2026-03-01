@@ -7,7 +7,7 @@ class ValidatePage(QWidget):
         
         super().__init__()
         self.parent_gui = parent_gui
-        self.operation = None
+        self.validator= None
         
         layout = QVBoxLayout()
         
@@ -66,27 +66,32 @@ class ValidatePage(QWidget):
 
         try:
 
-            self.operation = Validator(dataset_object, inplace = inplace)
+            self.validator= Validator(dataset_object, inplace = inplace)
 
             if operation_type == "Negative Values":
-                self.operation.negative_values(column)
+                self.validator.negative_values(column)
 
             elif operation_type == "Null Values":
-                self.operation.null_values(column)
+                self.validator.null_values(column)
             
             elif operation_type == "Duplicate Values":
-                self.operation.duplicate_values(column)
+                self.validator.duplicate_values(column)
 
             elif operation_type == "Class Names Validation":
                 class_names = [x.strip() for x in self.extra_input.text().split(",")]
-                self.operation.validate_class_names(column, class_names)
+                self.validator.validate_class_names(column, class_names)
             
             elif operation_type == "Range Validation":
-                start, end = self.extra_input.text().split(",")
-                self.operation.validate_range(column, float(start), float(end))
+                values = [v.strip() for v in self.extra_input.text().split(",")]
+                if len(values) != 2:
+                    raise ValueError("Values need to entered, separated by commas!")
+                start, end = map(float, values)
+                self.validator.validate_range(column, start, end)
             
-            log = self.operation.get_log()
+            log = self.validator.get_log()
             self.log_display.clear()
+
+            curr_cat = None
             for (category, description), value in log.items():
                 self.log_display.append(f"{category}")
                 self.log_display.append(f"{description} : {value}")
