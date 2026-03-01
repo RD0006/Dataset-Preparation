@@ -7,7 +7,7 @@ class ValidatePage(QWidget):
         
         super().__init__()
         self.parent_gui = parent_gui
-        self.validator = None
+        self.operation = None
         
         layout = QVBoxLayout()
         
@@ -19,8 +19,8 @@ class ValidatePage(QWidget):
         layout.addWidget(QLabel("Select Column:"))
         layout.addWidget(self.column_selector)
 
-        self.validation_selector = QComboBox()
-        self.validation_selector.addItems([
+        self.operation_selector = QComboBox()
+        self.operation_selector.addItems([
             "Negative Values",
             "Null Values",
             "Duplicate Values",
@@ -28,7 +28,7 @@ class ValidatePage(QWidget):
             "Range Validation"
         ])
         layout.addWidget(QLabel("Select Validation Type:"))
-        layout.addWidget(self.validation_selector)
+        layout.addWidget(self.operation_selector)
 
         self.extra_input = QLineEdit()
         self.extra_input.setPlaceholderText("Optional Parameters (Comma Separated)")
@@ -61,34 +61,37 @@ class ValidatePage(QWidget):
             return
         
         column = self.column_selector.currentText()
-        validation_type = self.validation_selector.currentText()
+        operation_type = self.operation_selector.currentText()
         inplace = self.inplace_checkbox.isChecked()
 
         try:
 
-            self.validator = Validator(dataset_object, inplace = inplace)
+            self.operation = Validator(dataset_object, inplace = inplace)
 
-            if validation_type == "Negative Values":
-                self.validator.negative_values(column)
+            if operation_type == "Negative Values":
+                self.operation.negative_values(column)
 
-            elif validation_type == "Null Values":
-                self.validator.null_values(column)
+            elif operation_type == "Null Values":
+                self.operation.null_values(column)
             
-            elif validation_type == "Duplicate Values":
-                self.validator.duplicate_values(column)
+            elif operation_type == "Duplicate Values":
+                self.operation.duplicate_values(column)
 
-            elif validation_type == "Class Names Validation":
+            elif operation_type == "Class Names Validation":
                 class_names = [x.strip() for x in self.extra_input.text().split(",")]
-                self.validator.validate_class_names(column, class_names)
+                self.operation.validate_class_names(column, class_names)
             
-            elif validation_type == "Range Validation":
+            elif operation_type == "Range Validation":
                 start, end = self.extra_input.text().split(",")
-                self.validator.validate_range(column, float(start), float(end))
+                self.operation.validate_range(column, float(start), float(end))
             
-            log = self.validator.get_log()
+            log = self.operation.get_log()
             self.log_display.clear()
-            for key, value in log.items():
-                self.log_display.append(f"{key} : {value}")
+            for (category, description), value in log.items():
+                self.log_display.append(f"{category}")
+                self.log_display.append(f"{description} : {value}")
+                self.log_display.append("_" * 60 + "\n")
+
         
             if inplace:
                 self.parent_gui.pages[0].display_dataset(dataset_object)

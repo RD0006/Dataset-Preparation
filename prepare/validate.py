@@ -162,7 +162,7 @@ class Validator:
         self.__log[(column, "Wrong Class Names")] = len(rows)
 
         # drop rows if required
-        if self.inplace :
+        if self.inplace:
             dataset.drop(index = rows, inplace = True)
         else:
             self.__indices.update(rows)
@@ -210,13 +210,14 @@ class Validator:
         Get log containing the list of all issues
         """
         
-        log = self.__log
+        log = self.__log.copy()
+
         if self.inplace == True:
-            log[("Complete Dataset", "Total Number of Invalid Rows Updated")] = len(self.__indices)
-            log[("Complete Dataset", "Total Percentage of Invalid Rows Updated")] = len(self.__indices) / self.__initial_row_count * 100
+            log[("Complete Dataset", "Invalid Rows Removed")] = self.__initial_row_count - self.dataset.num_of_rows
+            log[("Complete Dataset", "Percentage of Invalid Rows Removed")] = (self.__initial_row_count - self.dataset.num_of_rows) / self.__initial_row_count * 100
         else:
-            log[("Complete Dataset", "Total Number of Invalid Rows Found")] = len(self.__indices)
-            log[("Complete Dataset", "Total Percentage of Invalid Rows Found")] = len(self.__indices) / self.__initial_row_count * 100
+            log[("Complete Dataset", "Invalid Rows Found")] = len(self.__indices)
+            log[("Complete Dataset", "Percentage of Invalid Rows Found")] = len(self.__indices) / self.__initial_row_count * 100
         return log
     
     def drop_invalid_rows(self):
