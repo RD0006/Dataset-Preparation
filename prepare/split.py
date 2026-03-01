@@ -67,7 +67,7 @@ class Splitter:
         # operation
         n_train = round(train * num_of_rows)
         result["train"] = Dataset(dataset[ : n_train])
-        result["test"] = Dataset(self.dataset.dataset[n_train : ])
+        result["test"] = Dataset(dataset[n_train : ])
 
         # update log
         self.__log.clear()
