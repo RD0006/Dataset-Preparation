@@ -57,7 +57,7 @@ class ValidatePage(QWidget):
     def run_validation(self):
         dataset_object = self.parent_gui.dataset
         if dataset_object is None:
-            QMessageBox.warning(self, "Warning", "No Database Loaded")
+            QMessageBox.warning(self, "Warning", "No Dataset Loaded")
             return
         
         column = self.column_selector.currentText()
