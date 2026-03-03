@@ -20,7 +20,6 @@ class GUI_Class(QWidget):
         self.dataset = None
 
         self.setWindowTitle("Dataset Preparation - Desktop App")
-        self.setGeometry(QApplication.primaryScreen().availableGeometry())
 
         self.sidebar = QListWidget()
         self.sidebar.setFixedWidth(200)
