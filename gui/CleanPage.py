@@ -32,10 +32,6 @@ class CleanPage(QWidget):
         ])
         layout.addWidget(self.cleaning_selector)
 
-        self.extra_input = QLineEdit()
-        self.extra_input.setPlaceholderText("Optional Parameters (Comma Separated)")
-        layout.addWidget(self.extra_input)
-
         self.all_columns_checkbox = QCheckBox("Apply to All Columns")
         layout.addWidget(self.all_columns_checkbox)
 
@@ -59,40 +55,46 @@ class CleanPage(QWidget):
     def run_cleaning(self):
         dataset_object = self.parent_gui.dataset
         if dataset_object is None:
-            QMessageBox.warning(self, "Warning", "No Database Loaded")
+            QMessageBox.warning(self, "Warning", "No Dataset Loaded")
             return
         
         column = self.column_selector.currentText()
         operation = self.cleaning_selector.currentText()
         all_columns = self.all_columns_checkbox.isChecked()
 
+        if all_columns:
+            column = None
+
         try:
 
             self.cleaner = Cleaner(dataset_object)
 
             if operation == "Handle Missing Values":
-                self.cleaner.handle_missing_values(column = None if all_columns else column)
+                self.cleaner.handle_missing_values(column = column, all_columns = all_columns)
 
             elif operation == "Remove Duplicate Rows":
                 self.cleaner.drop_duplicate_rows()
             
             elif operation == "Handle Outliers":
-                self.cleaner.handle_outliers(column = None if all_columns else column)
+                self.cleaner.handle_outliers(column = column, all_columns = all_columns)
 
             elif operation == "Fix Categoricals":
-                self.cleaner.fix_categoricals(column = None if all_columns else column)
+                self.cleaner.fix_categoricals(column = column, all_columns = all_columns)
             
             elif operation == "Drop Column":
-                self.cleaner.drop_column(column = column)
+                self.cleaner.drop_column(column = column, all_columns = all_columns)
             
             elif operation == "Normalize":
-                self.cleaner.normalize(column = None if all_columns else column)
+                self.cleaner.normalize(column = column, all_columns = all_columns)
 
             elif operation == "Standardize":
-                self.cleaner.standardize(column = None if all_columns else column)
+                self.cleaner.standardize(column = column, all_columns = all_columns)
 
             log = self.cleaner.get_log_of_fixed_issues()
             self.log_display.clear()
+            target_column = "All Columns" if all_columns else column
+
+            self.log_display.append(f"Target Column(s): {target_column}\n")
             for key, value in log.items():
                 self.log_display.append(f"{key} : {value}")
         
