@@ -66,6 +66,10 @@ class ValidatePage(QWidget):
 
         try:
 
+            if not column: 
+                QMessageBox.warning(self, "Warning", "Please select a column!")
+                return 
+
             self.validator= Validator(dataset_object, inplace = inplace)
 
             if operation_type == "Negative Values":
@@ -78,24 +82,43 @@ class ValidatePage(QWidget):
                 self.validator.duplicate_values(column)
 
             elif operation_type == "Class Names Validation":
-                class_names = [x.strip() for x in self.extra_input.text().split(",")]
+                text = self.extra_input.text().strip()
+                if not text:
+                    QMessageBox.warning(self, "Warning", "Please provide class names separated by commas!")
+                    return 
+                class_names = [x.strip() for x in text.split(",") if x.strip()]
                 self.validator.validate_class_names(column, class_names)
             
             elif operation_type == "Range Validation":
-                values = [v.strip() for v in self.extra_input.text().split(",")]
+                text = self.extra_input.text().strip()
+                
+                if not text:
+                    QMessageBox.warning(self, "Warning", "Please provide range values separated by a comma!")
+                    return
+
+                values = [v.strip() for v in text.split(",")]
+
                 if len(values) != 2:
-                    raise ValueError("Values need to entered, separated by commas!")
-                start, end = map(float, values)
+                    QMessageBox.warning(self, "Warning", "Please provide range values separated by a comma!")
+                    return
+                
+                try:
+                    start, end = map(float, values)
+                    if start > end:
+                        raise ValueError
+                except ValueError:
+                    QMessageBox.warning(self, "Warning", "Please provide valid numeric range values!")
+                    return
+                
                 self.validator.validate_range(column, start, end)
             
             log = self.validator.get_log()
             self.log_display.clear()
 
-            curr_cat = None
             for (category, description), value in log.items():
                 self.log_display.append(f"{category}")
                 self.log_display.append(f"{description} : {value}")
-                self.log_display.append("_" * 60 + "\n")
+                self.log_display.append("-" * 60 + "\n")
 
         
             if inplace:
