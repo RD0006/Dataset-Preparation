@@ -8,7 +8,6 @@ Utility functions provided for the following:
 - splitting the dataset into training, testing, and validation sets
 """
 
-import random
 from .input import Dataset
 
 class Splitter:
@@ -33,6 +32,23 @@ class Splitter:
 
         if abs(train + test + validate - 1.0) > 1e-8:
             raise ValueError("Split Ratio does not sum up to 1.0!")
+        
+    def no_split(self, shuffle = False):
+        """
+        No Split
+
+        Parameters:
+        - shuffle: bool
+        """
+        
+        dataset = self.dataset.dataset.copy()
+
+        if shuffle:
+            dataset = dataset.sample(frac = 1).reset_index(drop = True)
+
+        return {
+            "dataset": Dataset(dataset)
+        }
 
     def train_test(self, train = None, test = None, shuffle = False):
         """
@@ -76,7 +92,7 @@ class Splitter:
 
         return result
 
-    def train_validate_test(self, train = 0.65, validate = 0.10, test = 0.25, shuffle = False):
+    def train_validate_test(self, train = None, validate = None, test = None, shuffle = False):
         """
         Split Dataset into Training, Validation, and Testing Datasets
 
