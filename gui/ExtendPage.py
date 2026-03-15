@@ -2,7 +2,7 @@ from prepare.input import Dataset
 from prepare.extend import Extender
 from PyQt6.QtWidgets import *
 
-class SplitPage(QWidget):
+class ExtendPage(QWidget):
     def __init__(self, parent_gui):
         super().__init__()
         self.parent_gui = parent_gui
@@ -20,7 +20,7 @@ class SplitPage(QWidget):
         self.extension_selector = QComboBox()
         self.extension_selector.addItems([
             "Add Duplicate Rows",
-            "Add Augmented Rows",
+            "Add Gaussian Rows",
             "Balance Classes",
             "Add Noise"
         ])
@@ -30,7 +30,7 @@ class SplitPage(QWidget):
         self.extra_input = QLineEdit()
         self.extra_input.setPlaceholderText("Optional Parameters (Comma Separated)")
         layout.addWidget(self.extra_input)
-
+        
         self.run_button = QPushButton("Extend Dataset")
         self.run_button.clicked.connect(self.run_extension)
         layout.addWidget(self.run_button)
@@ -51,7 +51,7 @@ class SplitPage(QWidget):
     def run_extension(self):
         dataset_object = self.parent_gui.dataset
         if dataset_object is None:
-            QMessageBox.warning(self, "Warning", "No Database Loaded")
+            QMessageBox.warning(self, "Warning", "No Dataset Loaded")
             return
         
         column = self.column_selector.currentText()
@@ -62,30 +62,36 @@ class SplitPage(QWidget):
 
             self.extender = Extender(dataset_object)
 
-            if extension_type == "Negative Values":
-                self.extender.negative_values(column)
+            if extension_type == "Add Duplicate Rows":
+                self.extender.add_duplicate_rows(
+                    int(params[0]) if len(params) > 0 else 10,
+                    int(params[1]) if len(params) > 1 else 42
+                )
 
-            elif extension_type == "Null Values":
-                self.extender.null_values(column)
+            elif extension_type == "Add Gaussian Rows":
+                self.extender.add_gaussian_rows(
+                    int(params[0]) if len(params) > 0 else 10,
+                    int(params[1]) if len(params) > 1 else 42
+                )
             
-            elif extension_type == "Duplicate Values":
-                self.extender.duplicate_values(column)
+            elif extension_type == "Balance Classes":
+                self.extender.balance_classes(
+                    column,
+                    int(params[0]) if len(params) > 0 else 5,
+                    int(params[1]) if len(params) > 42 else 42
+                )
 
-            elif extension_type == "Class Names Validation":
-                class_names = [x.strip() for x in self.extra_input.text().split(",")]
-                self.extender.validate_class_names(column, class_names)
+            elif extension_type == "Add Noise":
+                self.extender.add_noisy_rows(
+                    int(params[0]) if len(params) > 0 else 10,
+                    int(params[1]) if len(params) > 0.01 else 0.01,
+                    int(params[2]) if len(params) > 2 else 42
+                )
             
-            elif extension_type == "Range Validation":
-                start, end = self.extra_input.text().split(",")
-                self.validator.validate_range(column, float(start), float(end))
-            
-            log = self.validator.get_log()
+            log = self.extender.get_log()
             self.log_display.clear()
             for key, value in log.items():
                 self.log_display.append(f"{key} : {value}")
-        
-            if inplace:
-                self.parent_gui.pages[0].display_dataset(dataset_object)
-                self.populate_columns()
+
         except Exception as e:
-            QMessageBox.critical(self, "Validation Error", str(e))
+            QMessageBox.critical(self, "Extension Error", str(e))

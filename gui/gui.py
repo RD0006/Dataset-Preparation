@@ -8,8 +8,7 @@ from .InputPage import InputPage
 from .ValidatePage import ValidatePage
 from .CleanPage import CleanPage
 from .ExtendPage import ExtendPage
-from .SplitPage import SplitPage
-from .ExportPage import ExportPage
+from .SplitAndExportPage import SplitAndExportPage
 from PyQt6.QtWidgets import *
 
 class GUI_Class(QWidget):
@@ -41,8 +40,7 @@ class GUI_Class(QWidget):
             ValidatePage(self),
             CleanPage(self),
             ExtendPage(self),
-            SplitPage(self),
-            ExportPage(self)
+            SplitAndExportPage(self)
         ]
 
         for page in self.pages:
