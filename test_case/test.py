@@ -38,5 +38,5 @@ splitter = Splitter(dataset)
 result = splitter.train_test(0.8)
 
 exporter = Exporter()
-exporter.export_to_csv(result["train"], "test_case/Training_Dataset.csv", overwrite = 0)
-exporter.export_to_csv(result["test"], "test_case/Testing_Dataset.csv", overwrite = 0)
+exporter.export_to_csv(result["train"], "test_case/Training_Dataset.csv", overwrite = False)
+exporter.export_to_csv(result["test"], "test_case/Testing_Dataset.csv", overwrite = False)
