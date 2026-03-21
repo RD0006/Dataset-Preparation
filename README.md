@@ -94,10 +94,27 @@ This is the module for exporting the dataset in the desired format(s) and allows
 - pandas DataFrame
 
 ## prepareGUI
-prepareGUI is a GUI built on top of prepare for users who prefer a visual interface. It mirrors the API functionality and has a provision to display logs as well. It is intuitive and user-friendly.
+prepareGUI is a GUI built on top of prepare for users who prefer a visual interface. It mirrors the API functionality and has a provision to display logs as well. The GUI is intuitive and user-friendly. THe visuals are as follows:<br/>
 
-### Visuals
+### Input Dataset Section
 
+![Input Section Screenshot](Screenshots/img1.png)
+
+### Validate Dataset Section
+
+![Validate Section Screenshot](Screenshots/img2.png)
+
+### Clean Dataset Section
+
+![Clean Section Screenshot](Screenshots/img3.png)
+
+### Extend Dataset Section
+
+![Extend Section Screenshot](Screenshots/img4.png)
+
+### Split and Export Dataset Section
+
+![Split and Export Section Screenshot](Screenshots/img5.png)
 
 
 ## License Information
