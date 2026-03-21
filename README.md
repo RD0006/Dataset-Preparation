@@ -16,28 +16,28 @@ prepareGUI is the graphical user interface built using PyQt. The GUI is built on
 
 ## Repository Structure
 
-Dataset-Preparation/
-├── prepare/
-│   ├── __init__.py
-│   ├── input.py
-│   └── validate.py
-│   └── clean.py
-│   └── extend.py
-│   └── split.py
-│   └── export.py
-├── prepareGUI/
-│   └── gui.py
-│   └── InputPage.py
-│   └── ValidatePage.py
-│   └── CleanPage.py
-│   └── ExtendPage.py
-│   └── SplitAndExportPage.py
-├── test_case/
-│   └── test.py
-│   └── kc_house_data.csv
-│   └── Training_Dataset.csv
-│   └── TestingDataset.csv
-├── LICENSE
+Dataset-Preparation/<br/>
+├── prepare/<br/>
+│   ├── __init__.py<br/>
+│   ├── input.py<br/>
+│   └── validate.py<br/>
+│   └── clean.py<br/>
+│   └── extend.py<br/>
+│   └── split.py<br/>
+│   └── export.py<br/>
+├── prepareGUI/<br/>
+│   └── gui.py<br/>
+│   └── InputPage.py<br/>
+│   └── ValidatePage.py<br/>
+│   └── CleanPage.py<br/>
+│   └── ExtendPage.py<br/>
+│   └── SplitAndExportPage.py<br/>
+├── test_case/<br/>
+│   └── test.py<br/>
+│   └── kc_house_data.csv<br/>
+│   └── Training_Dataset.csv<br/>
+│   └── TestingDataset.csv<br/>
+├── LICENSE<br/>
 └── README.md
 
 ## prepare API
