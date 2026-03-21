@@ -18,25 +18,25 @@ prepareGUI is the graphical user interface built using PyQt. The GUI is built on
 
 Dataset-Preparation/<br/>
 ├── prepare/<br/>
-│<nbsp;><nbsp;><nbsp;>├── __init__.py<br/>
-│<nbsp;><nbsp;><nbsp;>├── input.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── validate.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── clean.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── extend.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── split.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── export.py<br/>
+│&nbsp;&nbsp;&nbsp;├── __init__.py<br/>
+│&nbsp;&nbsp;&nbsp;├── input.py<br/>
+│&nbsp;&nbsp;&nbsp;└── validate.py<br/>
+│&nbsp;&nbsp;&nbsp;└── clean.py<br/>
+│&nbsp;&nbsp;&nbsp;└── extend.py<br/>
+│&nbsp;&nbsp;&nbsp;└── split.py<br/>
+│&nbsp;&nbsp;&nbsp;└── export.py<br/>
 ├── prepareGUI/<br/>
-│<nbsp;><nbsp;><nbsp;>└── gui.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── InputPage.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── ValidatePage.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── CleanPage.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── ExtendPage.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── SplitAndExportPage.py<br/>
+│&nbsp;&nbsp;&nbsp;└── gui.py<br/>
+│&nbsp;&nbsp;&nbsp;└── InputPage.py<br/>
+│&nbsp;&nbsp;&nbsp;└── ValidatePage.py<br/>
+│&nbsp;&nbsp;&nbsp;└── CleanPage.py<br/>
+│&nbsp;&nbsp;&nbsp;└── ExtendPage.py<br/>
+│&nbsp;&nbsp;&nbsp;└── SplitAndExportPage.py<br/>
 ├── test_case/<br/>
-│<nbsp;><nbsp;><nbsp;>└── test.py<br/>
-│<nbsp;><nbsp;><nbsp;>└── kc_house_data.csv<br/>
-│<nbsp;><nbsp;><nbsp;>└── Training_Dataset.csv<br/>
-│<nbsp;><nbsp;><nbsp;>└── TestingDataset.csv<br/>
+│&nbsp;&nbsp;&nbsp;└── test.py<br/>
+│&nbsp;&nbsp;&nbsp;└── kc_house_data.csv<br/>
+│&nbsp;&nbsp;&nbsp;└── Training_Dataset.csv<br/>
+│&nbsp;&nbsp;&nbsp;└── TestingDataset.csv<br/>
 ├── LICENSE<br/>
 └── README.md
 
