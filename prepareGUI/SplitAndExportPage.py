@@ -143,7 +143,7 @@ class SplitAndExportPage(QWidget):
                         temp = f"{filename}.csv"
                     else:
                         temp = f"{filename}_{key}.csv"
-                    self.exporter.export_to_csv(value, temp, overwrite)
+                    self.exporter.export_to_csv(value, filename = temp, overwrite = overwrite)
                     self.log_display.append(f"{temp} created!")
 
             elif export_type == "JSON":

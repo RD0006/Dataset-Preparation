@@ -28,8 +28,7 @@ class GUI_Class(QWidget):
         self.sidebar.addItem("Validate Dataset")
         self.sidebar.addItem("Clean Dataset")
         self.sidebar.addItem("Extend Dataset")
-        self.sidebar.addItem("Split Dataset")
-        self.sidebar.addItem("Export Dataset")
+        self.sidebar.addItem("Split and Export Dataset")
 
         self.sidebar.currentRowChanged.connect(self.display_page)
 
