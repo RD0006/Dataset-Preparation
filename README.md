@@ -1,4 +1,4 @@
-# prepare: Python API and prepareGUI for Dataset Preparation
+# prepare: Python API and GUI for Dataset Preparation
 
 ## Description
 prepare is a Python API for users to easily prepare their datasets before any data science, machine learning, or other dataset-related tasks. It is developed purely using Python language and minimal dependencies. The API contains modules for validation, cleaning, extending, splitting, and exporting datasets. 
@@ -96,6 +96,10 @@ This is the module for exporting the dataset in the desired format(s) and allows
 ## prepareGUI
 prepareGUI is a GUI built on top of prepare for users who prefer a visual interface. It mirrors the API functionality and has a provision to display logs as well. It is intuitive and user-friendly.
 
+### Visuals
+
+
+
 ## License Information
 This project is licensed under the terms of the GNU Lesser General Public License, Version 2.1. More information regarding it may be read in LICENSE file.
 
@@ -144,7 +148,3 @@ exporter = Exporter()
 exporter.export_to_csv(result["train"], "test_case/Training_Dataset.csv", overwrite = False)
 exporter.export_to_csv(result["test"], "test_case/Testing_Dataset.csv", overwrite = False)
 ```
-
-## Visuals of prepareGUI
-
-
