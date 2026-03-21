@@ -147,14 +147,16 @@ class Validator:
         - column: str or int
         - class_names: list of valid class names
         """
-        
-        # checks
-        if not isinstance(class_names, list):
-            raise TypeError("Class names should be in a list!")
 
         dataset = self.dataset.dataset
         col = self.__get_column(column)
 
+        # checks
+        if dataset[col].isnull().any():
+            raise ValueError("Column contains null values!")
+        if not isinstance(class_names, list):
+            raise TypeError("Class names should be in a list!")
+        
         # operation
         rows = dataset[dataset[col].isin(class_names)  == False].index
         
@@ -226,7 +228,7 @@ class Validator:
         """
 
         if self.inplace == True:
-            return -1
+            return 0
         elif self.__indices:
             self.dataset.dataset.drop(index = list(self.__indices), inplace = True)
             cnt = len(self.__indices)

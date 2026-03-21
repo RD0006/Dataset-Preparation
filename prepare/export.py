@@ -31,7 +31,7 @@ class Exporter:
         if os.path.exists(filename) and not overwrite:
             raise FileExistsError(f"File {filename} already exists and overwrite is set to False!")
 
-    def export_to_csv(self, dataset, filename = "Updated_Dataset.csv", overwrite = False):
+    def export_to_csv(self, dataset, sep = ",", filename = "Updated_Dataset.csv", overwrite = False):
         """
         Export Dataset to CSV
 
@@ -50,7 +50,7 @@ class Exporter:
 
         # convert to csv
         try:
-            dataset.dataset.to_csv(filename, sep = ",", index = False)
+            dataset.dataset.to_csv(filename, sep = sep, index = False)
         except Exception as e:
             raise RuntimeError("Cannot export to CSV!" + str(e))
         
@@ -75,7 +75,7 @@ class Exporter:
 
         # convert to json
         try:
-            dataset.dataset.to_json(filename, orient = "records")
+            dataset.dataset.to_json(filename, orient = "records", force_ascii = False)
         except Exception as e:
             raise RuntimeError("Cannot export to JSON!" + str(e))
         

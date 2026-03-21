@@ -41,11 +41,17 @@ class Splitter:
         - shuffle: bool
         """
         
+        if self.dataset.dataset.empty:
+            raise ValueError("Empty Dataset!")
+
         dataset = self.dataset.dataset.copy()
 
         if shuffle:
             dataset = dataset.sample(frac = 1).reset_index(drop = True)
 
+        self.__log.clear()
+        self.__log["Number of Rows in Dataset"] = len(dataset)
+        
         return {
             "dataset": Dataset(dataset)
         }
@@ -61,8 +67,12 @@ class Splitter:
         """
 
         # checks
+        if self.dataset.dataset.empty:
+            raise ValueError("Empty Dataset!")
         if train is None and test is None:
             raise ValueError("At least one of train or test arguments must be given!")
+        if (train is not None and train < 0) or (test is not None and test < 0):
+            raise ValueError("train and test cannot have negative values!")
         elif train is None:
             train = 1.0 - test
         else:
@@ -104,8 +114,12 @@ class Splitter:
         """
 
         # checks
+        if self.dataset.dataset.empty:
+            raise ValueError("Empty Dataset!")
         if [train, test, validate].count(None) > 1:
             raise ValueError("At least two out of train, test, and validate arguments must be given!")
+        if (train is not None and train < 0) or (validate is not None and validate < 0) or (test is not None and test < 0):
+            raise ValueError("train, validate, and test cannot have negative values!")
         elif train is None:
             train = 1.0 - test - validate
         elif test is None:

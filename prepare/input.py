@@ -19,9 +19,7 @@ class Dataset:
 
         if isinstance(input_dataset, str):
             
-            input_dataset = input_dataset.lower()
-
-            if input_dataset.endswith(".csv"):
+            if input_dataset.lower().endswith(".csv"):
                 # read CSV file
 
                 try: 
@@ -29,7 +27,7 @@ class Dataset:
                 except Exception as e:
                     raise ValueError(f"CSV file cannot be read!\n{e}")
 
-            elif input_dataset.endswith(".parquet"):
+            elif input_dataset.lower().endswith(".parquet"):
                 # read Parquet file
 
                 try:
@@ -37,7 +35,7 @@ class Dataset:
                 except Exception as e:
                     raise ValueError(f"Parquet file cannot be read!\n{e}")
             
-            elif input_dataset.endswith(".json"):
+            elif input_dataset.lower().endswith(".json"):
                 # read JSON file
 
                 try:
@@ -46,7 +44,7 @@ class Dataset:
                     raise ValueError(f"JSON file cannot be read!\n{e}")
 
             
-            elif input_dataset.endswith(".xlsx"):
+            elif input_dataset.lower().endswith(".xlsx"):
                 # read Excel file
 
                 try:
@@ -55,7 +53,7 @@ class Dataset:
                         raise ValueError("Cannot read more than one Excel sheets!")
                     self.dataset = pd.read_excel(file, sheet_name = 0)
                 except Exception as e:
-                    raise ValueError(f"Excel file not read!\n{e}")
+                    raise ValueError(f"Excel file cannot be read!\n{e}")
 
             else:
                 # invalid file input

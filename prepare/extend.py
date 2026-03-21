@@ -28,6 +28,8 @@ class Extender:
 
         if not isinstance(dataset, Dataset):
             raise TypeError("Dataset object not received!")
+        if dataset.dataset.empty:
+            raise RuntimeError("Dataset is empty!")
         self.dataset = dataset
         self.__log = {}
         self.__initial_row_count = self.dataset.num_of_rows
@@ -42,13 +44,19 @@ class Extender:
         - random_state: int
         """
 
+        if n_rows < 0:
+            raise ValueError("Incorrect Value for n_rows given!")
+        
         rng = np.random.default_rng(random_state)
 
         dataset = self.dataset.dataset.copy()
 
         # get numerical and categorical columns         
         num_cols = [c for c in dataset.columns if pd.api.types.is_numeric_dtype(dataset[c])]
-        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or pd.api.types.is_categorical_dtype(dataset[c])]
+        
+        if not num_cols:
+            raise ValueError("No numeric column available!")
+        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or isinstance(dataset[c].dtype, pd.CategoricalDtype)]
 
         # means and standard deviations
         means = dataset[num_cols].mean()
@@ -98,8 +106,9 @@ class Extender:
         - k: int
         - random_state: int
         """
-
-        # add functionality to give any column type
+    
+        if k <= 0:
+            raise ValueError("Incorrect value for k given!")
 
         np.random.seed(random_state)
 
@@ -107,7 +116,11 @@ class Extender:
         
         # get numerical and categorical columns
         num_cols = [c for c in dataset.columns if pd.api.types.is_numeric_dtype(dataset[c])]
-        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or pd.api.types.is_categorical_dtype(dataset[c])]
+
+        if not num_cols:
+            raise ValueError("No numeric column available!")
+        
+        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or isinstance(dataset[c].dtype, pd.CategoricalDtype)]
 
         # checks
         if column not in cat_cols:
@@ -123,9 +136,13 @@ class Extender:
         for class_, count in classes_count.items():
             dataset_class = dataset[dataset[column] == class_].copy()
 
-            if count < max_count and len(dataset_class) > 1:               
+            if count < max_count and len(dataset_class) >= 1:               
                 req = max_count - count
                 class_values = dataset_class[num_cols].values
+
+                if len(class_values) < 2:
+                    continue
+
                 effective_k = min(k, len(class_values) - 1)
 
                  # synthetic row generation
@@ -184,6 +201,9 @@ class Extender:
         - random_state: int
         """
         
+        if n_rows < 0:
+            raise ValueError("Incorrect Value for n_rows given!")
+        
         rng = np.random.default_rng(random_state)
         dataset = self.dataset.dataset.copy()
 
@@ -211,12 +231,17 @@ class Extender:
         - random_state: int
         """
 
+        if n_rows < 0:
+            raise ValueError("Incorrect Value for n_rows given!")
+        if noise_level < 0:
+            raise ValueError("Incorrect value for noise_level given!")
+
         rng = np.random.default_rng(random_state)
         dataset = self.dataset.dataset.copy()
         
         # get numerical and categorical columns
         num_cols = [c for c in dataset.columns if pd.api.types.is_numeric_dtype(dataset[c])]
-        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or pd.api.types.is_categorical_dtype(dataset[c])]
+        cat_cols = [c for c in dataset.columns if pd.api.types.is_object_dtype(dataset[c]) or isinstance(dataset[c].dtype, pd.CategoricalDtype)]
 
         new_rows = []
 
@@ -262,7 +287,7 @@ class Extender:
         Get log containing the details of rows added
         """
         
-        log = self.__log
+        log = self.__log.copy()
         log[("Complete Dataset", "Total Number of Rows Added")] = self.__count_of_rows
         log[("Complete Dataset", "Percentage Increase of Rows")] = (self.dataset.num_of_rows - self.__initial_row_count) / self.__initial_row_count * 100
         return log

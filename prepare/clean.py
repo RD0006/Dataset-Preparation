@@ -456,12 +456,15 @@ class Cleaner:
         # checks
         if dataset.empty:
             raise RuntimeError("Dataset is empty!")
+        if column is None and all_columns == False:
+            raise ValueError("No column selected!")
         
         # get columns
         if all_columns == True:
             cols = dataset.columns.tolist()
         else:
             cols = self.__get_column(column)
+        
 
         # drop columns
         dataset.drop(cols, axis = 1, inplace = True)
